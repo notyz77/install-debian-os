@@ -41,23 +41,19 @@ if [ $ndisk = "1" ]; then
 
     mkfs.btrfs /dev/$partionsDisk
 
-    sleep
-
     mount /dev/$partionsDisk /mnt
-
-    sleep
 
     btrfs su cr /mnt/@
     btrfs su cr /mnt/@home
-    btrfs su cr /mnt/@@snapshots
-    btrfs su cr /mnt/@@var_log
-
-    sleep
+    btrfs su cr /mnt/@snapshots
+    btrfs su cr /mnt/@var_log
 
     umount /mnt
 
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@ /dev/$partionsDisk /mnt
-    mkdir -p /mnt/{home,.snapshots,/var/log}
+    mkdir -p /mnt/home
+    mkdir -p /mnt/.snapshots
+    mkdir -p /mnt/var/log
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@home /dev/$partionsDisk /mnt/home
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@snapshots /dev/$partionsDisk /mnt/.snapshots
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@var_log /dev/$partionsDisk /mnt/var/log
