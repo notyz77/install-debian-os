@@ -36,9 +36,9 @@ echo $nrelease > $dirm/nrelease.txt
 #uefi="$(cat /sys/firmware/efi/fw_platform_size 2> /dev/null)"
 
 if [ -d /sys/firmware/efi ]; then
-    var1/dependencyScript/configer_uefi_partion_and_btrfs_subvol.sh
+    $dirm/dependencyScript/configer_uefi_partion_and_btrfs_subvol.sh
 else
-    var1/dependencyScript/configer_mbr_partion_and_btrfs_subvol.sh
+    $dirm/dependencyScript/configer_mbr_partion_and_btrfs_subvol.sh
 fi
 
 apt install vim debootstrap

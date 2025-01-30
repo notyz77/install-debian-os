@@ -15,15 +15,15 @@ echo '3) choose this options if you only have one disk and want to used for debi
 echo 'select number:'
 read ndisk
 
-if [ $ans = "1" ]; then
+if [ $ndisk = "1" ]; then
  
     lsblk -f
-    echo 'Choose the following disk to edit with fdisk'
+    echo '\nChoose the following disk to edit with fdisk'
     read pcdisk
     echo $pcdisk > $dirds/pcdisk.txt
 
     lsblk -f
-    echo 'Choose the following disk for grub bootloader'
+    echo '\nChoose the following disk for grub bootloader'
     read grubDisk
 
     # If the input is empty, use the default value "John"
@@ -35,17 +35,25 @@ if [ $ans = "1" ]; then
     fdisk /dev/$pcdisk
 
     lsblk -f
-    echo 'Choose the following disk partions for setting up btrfs file system with @, @home, @snapshots, @var_log subvolume'
+    echo '\nChoose the following disk partions for setting up btrfs file system with @, @home, @snapshots, @var_log subvolume'
     read partionsDisk
     echo $partionsDisk > $dirds/partionsDisk.txt
 
     mkfs.btrfs /dev/$partionsDisk
 
+    sleep
+
     mount /dev/$partionsDisk /mnt
+
+    sleep
+
     btrfs su cr /mnt/@
     btrfs su cr /mnt/@home
     btrfs su cr /mnt/@@snapshots
     btrfs su cr /mnt/@@var_log
+
+    sleep
+
     umount /mnt
 
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@ /dev/$partionsDisk /mnt
