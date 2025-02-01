@@ -22,7 +22,7 @@ echo 'Choose the following debian os release you want to install'
 echo '1) bookworm (curent stable)'
 echo '2) trixie (current testing)'
 echo '3) testing' 
-echo '4) sed'
+echo '4) sid'
 
 echo 'type the name (default it will choose 'bookworm'):'
 read nrelease
@@ -41,6 +41,8 @@ else
     $dirm/dependencyScript/configer_mbr_partion_and_btrfs_subvol.sh
 fi
 
-apt install vim debootstrap
+apt install vim debootstrap arch-install-scripts -y
 
 debootstrap $nrelease /mnt
+
+$dirm/dependencyScript/setup_sourceList.sh

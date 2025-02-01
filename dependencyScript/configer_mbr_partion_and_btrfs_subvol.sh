@@ -1,7 +1,7 @@
 #!/bin/sh
 
 dirds="$PWD"
-apt install fdisk
+apt install fdisk -y
 clear
 echo "This live ISO boot with bios"
 echo "Need to use MBR patiation layout,by default this script first check if fdisk is install, if not it will install"
