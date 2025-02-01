@@ -46,3 +46,10 @@ apt install vim debootstrap arch-install-scripts -y
 debootstrap $nrelease /mnt
 
 $dirm/dependencyScript/setup_sourceList.sh
+
+#mount sudo folder for chroot system
+mount --rbind /sys /mnt/sys && mount --make-rslave /mnt/sys
+mount --rbind /dev /mnt/dev && mount --make-rslave /mnt/dev
+mount --rbind /proc /mnt/proc && mount --make-rslave /mnt/proc
+
+genfstab -U /mnt >> /mnt/etc/fstab

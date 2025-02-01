@@ -1,23 +1,53 @@
 #!/bin/sh
 
-dirds="$PWD"
-cd ..
 dirm="$PWD"
 nrelease="$(cat $dirm/nrelease.txt)"
 
 if [ $nrelease = "sid" ]; then
     
-    cat >> /mnt/etc/apt/sources.list << EOF
-    # Debian Sid (Unstable) - Binary and Source Repositories
-    deb http://deb.debian.org/debian sid main contrib non-free non-free-firmware
-    deb-src http://deb.debian.org/debian sid main contrib non-free non-free-firmware
+    mv /mnt/etc/apt/sources.list /mnt/etc/apt/sources.list.bak
+    cat > /mnt/etc/apt/sources.list << EOF
+# Debian Sid (Unstable) - Binary and Source Repositories
+deb http://deb.debian.org/debian sid main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian sid main contrib non-free non-free-firmware
 
-    # Unstable Debug Packages
-    deb http://deb.debian.org/debian-debug sid-debug main contrib non-free non-free-firmware
-    deb-src http://deb.debian.org/debian-debug sid-debug main contrib non-free non-free-firmware
-    EOF
+# Unstable Debug Packages
+deb http://deb.debian.org/debian-debug sid-debug main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian-debug sid-debug main contrib non-free non-free-firmware
+EOF
+
 elif [ $nrelease = "testing" ]; then
-    $dirm/dependencyScript/configer_uefi_partion_and_btrfs_subvol.sh
+    
+    mv /mnt/etc/apt/sources.list /mnt/etc/apt/sources.list.bak
+    cat > /mnt/etc/apt/sources.list << EOF
+deb https://deb.debian.org/debian testing main contrib non-free non-free-firmware
+deb-src https://deb.debian.org/debian testing main contrib non-free non-free-firmware
+
+deb https://security.debian.org/debian-security testing-security main contrib non-free non-free-firmware
+deb-src https://security.debian.org/debian-security testing-security main contrib non-free non-free-firmware
+
+deb https://deb.debian.org/debian testing-updates main contrib non-free non-free-firmware
+deb-src https://deb.debian.org/debian testing-updates main contrib non-free non-free-firmware
+
+deb https://deb.debian.org/debian testing-backports main contrib non-free non-free-firmware
+deb-src https://deb.debian.org/debian testing-backports main contrib non-free non-free-firmware
+EOF
+
 else
-    $dirm/dependencyScript/configer_mbr_partion_and_btrfs_subvol.sh
+    
+    mv /mnt/etc/apt/sources.list /mnt/etc/apt/sources.list.bak
+    cat > /mnt/etc/apt/sources.list << EOF
+deb https://deb.debian.org/debian $nrelease main contrib non-free non-free-firmware
+deb-src https://deb.debian.org/debian $nrelease main contrib non-free non-free-firmware
+
+deb https://security.debian.org/debian-security $nrelease-security main contrib non-free non-free-firmware
+deb-src https://security.debian.org/debian-security $nrelease-security main contrib non-free non-free-firmware
+
+deb https://deb.debian.org/debian $nrelease main contrib non-free non-free-firmware
+deb-src https://deb.debian.org/debian $nrelease-updates main contrib non-free non-free-firmware
+
+deb https://deb.debian.org/debian $nrelease-backports main contrib non-free non-free-firmware
+deb-src https://deb.debian.org/debian $nrelease-backports main contrib non-free non-free-firmware
+EOF
+
 fi
