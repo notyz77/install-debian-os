@@ -26,15 +26,15 @@ if [ -d /sys/firmware/efi ]; then
     
     chroot /mnt apt install grub-efi-amd64
     chroot /mnt grub-install /dev/$grubDisk
-    update-grub
-    update-grub2
+    chroot /mnt update-grub
+    chroot /mnt update-grub2
 
 else
     
     chroot /mnt apt install grub-pc
     chroot /mnt grub-install /dev/$grubDisk
-    update-grub
-    update-grub2
+    chroot /mnt update-grub
+    chroot /mnt update-grub2
 
 fi
 
