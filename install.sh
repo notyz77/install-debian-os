@@ -8,9 +8,9 @@ fi
 dirm="$PWD"
 
 # asking username
-echo "Type the username for this system::"
-read usname
-echo $usname > $dirm/usname.txt
+#echo "Type the username for this system::"
+#read usname
+#echo $usname > $dirm/usname.txt
 
 # asking hostname
 echo "Type the hostname for this system:"
@@ -59,3 +59,20 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # configer hostname for previously set veriable
 echo $hname > /mnt//etc/hostname
+
+chroot /mnt /bin/bash
+
+apt install btrfs-progs locales
+
+dpkg-reconfigure locales
+
+dpkg-reconfigure tzdata
+
+apt install linux-image-amd64 sudo ntp dhcpcd5 vim
+
+clear
+
+echo "Type the root password for this system:"
+passwd
+
+echo "Type the user name for this system:"
