@@ -1,6 +1,6 @@
 #!/bin/sh
 
-dirds="$PWD"
+dirm="$PWD"
 apt install fdisk -y
 clear
 echo "This live ISO boot with bios"
@@ -20,7 +20,7 @@ if [ $ndisk = "1" ]; then
     lsblk -f
     echo '\nChoose the following disk to edit with fdisk'
     read pcdisk
-    echo $pcdisk > $dirds/pcdisk.txt
+    echo $pcdisk > $dirm/pcdisk.txt
 
     lsblk -f
     echo '\nChoose the following disk for grub bootloader'
@@ -30,14 +30,14 @@ if [ $ndisk = "1" ]; then
         if [ -z "$grubDisk" ]; then
             grubDisk="$pcdisk"
         fi
-    echo $grubDisk > $dirds/grubDisk.txt
+    echo $grubDisk > $dirm/grubDisk.txt
 
     fdisk /dev/$pcdisk
 
     lsblk -f
     echo '\nChoose the following disk partions for setting up btrfs file system with @, @home, @snapshots, @var_log subvolume'
     read partionsDisk
-    echo $partionsDisk > $dirds/partionsDisk.txt
+    echo $partionsDisk > $dirm/partionsDisk.txt
 
     mkfs.btrfs /dev/$partionsDisk
 

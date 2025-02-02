@@ -3,6 +3,7 @@
 dirm="$PWD"
 nrelease="$(cat $dirm/nrelease.txt)"
 usname="$(cat $dirm/usname.txt)"
+grubDisk="$(cat $dirm/grubDisk.txt)"
 
 chroot /mnt apt install btrfs-progs locales -y
 
@@ -17,6 +18,24 @@ clear
 echo "Type the root password for this system:"
 chroot /mnt passwd
 
-chroot /mnt chroot /mnt useradd -mG sudo $usname
+chroot /mnt useradd -mG sudo $usname
 echo "Type the password for $usname for this system:"
 chroot /mnt passwd $usname
+
+if [ -d /sys/firmware/efi ]; then
+    
+    chroot /mnt apt install grub-efi-amd64
+    chroot /mnt grub-install /dev/$grubDisk
+    update-grub
+    update-grub2
+
+else
+    
+    chroot /mnt apt install grub-pc
+    chroot /mnt grub-install /dev/$grubDisk
+    update-grub
+    update-grub2
+
+fi
+
+chroot /mnt systemctl enable dhcpcd
