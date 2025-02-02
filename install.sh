@@ -43,13 +43,19 @@ fi
 
 apt install vim debootstrap arch-install-scripts -y
 
+# Installing base system according to debian selected release
 debootstrap $nrelease /mnt
 
+# running script to setup sources.list according to debian selected release
 $dirm/dependencyScript/setup_sourceList.sh
 
-#mount sudo folder for chroot system
+# mount sudo folder for chroot system
 mount --rbind /sys /mnt/sys && mount --make-rslave /mnt/sys
 mount --rbind /dev /mnt/dev && mount --make-rslave /mnt/dev
 mount --rbind /proc /mnt/proc && mount --make-rslave /mnt/proc
 
+# generate fstab for new system
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# configer hostname for previously set veriable
+echo $hname > /mnt//etc/hostname

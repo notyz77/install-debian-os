@@ -43,7 +43,7 @@ deb-src https://deb.debian.org/debian $nrelease main contrib non-free non-free-f
 deb https://security.debian.org/debian-security $nrelease-security main contrib non-free non-free-firmware
 deb-src https://security.debian.org/debian-security $nrelease-security main contrib non-free non-free-firmware
 
-deb https://deb.debian.org/debian $nrelease main contrib non-free non-free-firmware
+deb https://deb.debian.org/debian $nrelease-updates main contrib non-free non-free-firmware
 deb-src https://deb.debian.org/debian $nrelease-updates main contrib non-free non-free-firmware
 
 deb https://deb.debian.org/debian $nrelease-backports main contrib non-free non-free-firmware
