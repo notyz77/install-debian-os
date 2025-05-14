@@ -4,7 +4,7 @@ dirm="$PWD"
 diskn=1
 apt install fdisk -y
 clear
-echo "This live ISO boot with bios"
+echo "This live ISO boot with bios mode"
 echo "Need to use MBR patiation layout,by default this script first check if fdisk is install, if not it will install"
 #read -n 1 -s -r -p "Press any key to continue"
 # asking debian os release to installed
@@ -61,7 +61,7 @@ if [ $ndisk = "1" ]; then
 
     lsblk
 
-elif [ $ans = "2" ]; then
+elif [ $ndisk = "2" ]; then
 
     lsblk -f
     echo '\nChoose the following disk for grub bootloader'
@@ -94,7 +94,7 @@ elif [ $ans = "2" ]; then
 
     lsblk
 
-elif [ $ans = "3" ]; then
+elif [ $ndisk = "3" ]; then
 
     lsblk -f
     echo '\nChoose the following disk so debian can install in it'
@@ -113,7 +113,7 @@ elif [ $ans = "3" ]; then
 
     echo 'label: dos' | sudo sfdisk /dev/$pcdisk
 
-    sudo sfdisk /dev/sdX << EOF
+    sudo sfdisk /dev/$pcdisk << EOF
 label: dos
 unit: sectors
 
