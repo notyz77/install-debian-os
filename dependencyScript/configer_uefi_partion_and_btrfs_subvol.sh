@@ -27,15 +27,25 @@ if [ $ndisk = "1" ]; then
 
     lsblk -f
     echo '\nChoose the following disk partions for EFI'
-    read efiDisk
-    echo $efiDisk > $dirm/efiDisk.txt
+    read efiPartionsDisk
+    echo $efiPartionsDisk > $dirm/efiPartionsDisk.txt
 
     lsblk -f
     echo '\nChoose the following disk partions for setting up btrfs file system with @, @home, @snapshots, @var_log subvolume'
     read partionsDisk
     echo $partionsDisk > $dirm/partionsDisk.txt
 
-    mkfs.vfat /dev/$efiDisk
+    lsblk -f
+    echo '\nChoose the following disk for grub bootloader'
+    read grubDisk
+
+    # If the input is empty, use the default value "John"
+        if [ -z "$grubDisk" ]; then
+            grubDisk="$pcdisk"
+        fi
+    echo $grubDisk > $dirm/grubDisk.txt
+
+    mkfs.vfat /dev/$efiPartionsDisk
 
     mkfs.btrfs /dev/$partionsDisk
 
@@ -56,7 +66,7 @@ if [ $ndisk = "1" ]; then
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@home /dev/$partionsDisk /mnt/home
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@snapshots /dev/$partionsDisk /mnt/.snapshots
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@var_log /dev/$partionsDisk /mnt/var/log
-    mount /dev/$efiDisk /mnt/boot/efi
+    mount /dev/$efiPartionsDisk /mnt/boot/efi
 
     lsblk
 

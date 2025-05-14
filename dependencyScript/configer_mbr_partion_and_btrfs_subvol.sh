@@ -23,6 +23,8 @@ if [ $ndisk = "1" ]; then
     read pcdisk
     echo $pcdisk > $dirm/pcdisk.txt
 
+    fdisk /dev/$pcdisk
+
     lsblk -f
     echo '\nChoose the following disk for grub bootloader'
     read grubDisk
@@ -32,8 +34,6 @@ if [ $ndisk = "1" ]; then
             grubDisk="$pcdisk"
         fi
     echo $grubDisk > $dirm/grubDisk.txt
-
-    fdisk /dev/$pcdisk
 
     lsblk -f
     echo '\nChoose the following disk partions for setting up btrfs file system with @, @home, @snapshots, @var_log subvolume'
