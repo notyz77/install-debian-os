@@ -9,11 +9,28 @@ grubDisk="$(cat $dirm/grubDisk.txt)"
 
 chroot /mnt apt install btrfs-progs locales -y
 
-chroot /mnt dpkg-reconfigure locales
+#chroot /mnt dpkg-reconfigure locales
 
-chroot /mnt dpkg-reconfigure tzdata
+#chroot /mnt dpkg-reconfigure tzdata
 
-chroot /mnt apt install linux-image-amd64 sudo keyboard-configuration man-db dhcpcd5 vim git -y
+# Copy locale files from live environment and Setting up locale
+cp /etc/locale.gen /mnt/etc/locale.gen
+cp /etc/default/locale /mnt/etc/default/locale
+
+chroot /mnt locale-gen
+chroot /mnt update-locale
+
+# Copy timezone files from live environment and Setting up timezone 
+cp /etc/timezone /mnt/etc/timezone
+cp /etc/localtime /mnt/etc/localtime
+
+chroot /mnt dpkg-reconfigure -f noninteractive tzdata
+
+# Copy keyboard-configuration files from live environment
+cp /etc/default/keyboard /mnt/etc/default/keyboard
+cp -r /etc/console-setup /mnt/etc/
+
+chroot /mnt apt install linux-image-amd64 sudo keyboard-configuration console-setup man-db dhcpcd5 vim git -y
 
 clear
 
@@ -23,12 +40,12 @@ clear
 #echo "Type the password for $usname for new system:"
 #chroot /mnt passwd $usname
 
-echo "root:$rootPass" | chroot /mnt chpasswd
-echo "$usname:$usPass" | chroot /mnt chpasswd
-
 chroot /mnt useradd -mG sudo $usname
 
 chroot /mnt usermod -s /bin/bash $usname
+
+echo "root:$rootPass" | chroot /mnt chpasswd
+echo "$usname:$usPass" | chroot /mnt chpasswd
 
 if [ -d /sys/firmware/efi ]; then
     

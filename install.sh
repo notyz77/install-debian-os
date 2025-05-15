@@ -25,6 +25,16 @@ echo "Type the hostname for this system:"
 read hname
 echo $hname > $dirm/hname.txt
 
+# setting up keyboard-configuration
+dpkg-reconfigure keyboard-configuration
+
+# Setting up timezone
+dpkg-reconfigure tzdata
+
+# Setting up locale
+dpkg-reconfigure locales
+source /etc/default/locale
+
 # asking debian os release to installed
 echo 'Choose the following debian os release you want to install'
 echo '1) bookworm (curent stable)'
