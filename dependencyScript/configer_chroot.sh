@@ -3,6 +3,8 @@
 dirm="$PWD"
 nrelease="$(cat $dirm/nrelease.txt)"
 usname="$(cat $dirm/usname.txt)"
+usPass="$(cat $dirm/usPass.txt)"
+rootPass="$(cat $dirm/rootPass.txt)"
 grubDisk="$(cat $dirm/grubDisk.txt)"
 
 chroot /mnt apt install btrfs-progs locales -y
@@ -15,12 +17,17 @@ chroot /mnt apt install linux-image-amd64 sudo keyboard-configuration man-db dhc
 
 clear
 
-echo "Type the root password for this system:"
-chroot /mnt passwd
+#echo "Type the root password for the new system:"
+#chroot /mnt passwd
+
+#echo "Type the password for $usname for new system:"
+#chroot /mnt passwd $usname
+
+echo "root:$rootPass" | chroot /mnt chpasswd
+echo "$usname:$usPass" | chroot /mnt chpasswd
 
 chroot /mnt useradd -mG sudo $usname
-echo "Type the password for $usname for this system:"
-chroot /mnt passwd $usname
+
 chroot /mnt usermod -s /bin/bash $usname
 
 if [ -d /sys/firmware/efi ]; then

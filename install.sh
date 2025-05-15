@@ -8,9 +8,17 @@ fi
 dirm="$PWD"
 
 # asking username
-echo "Type the username for this system::"
+echo "Type the username for the new system:"
 read usname
 echo $usname > $dirm/usname.txt
+
+echo "Type the password for $usname for new system:"
+read usPass
+echo $usPass > $dirm/usPass.txt
+
+echo "Type the root password for the new system:"
+read rootPass
+echo $rootPass > $dirm/rootPass.txt
 
 # asking hostname
 echo "Type the hostname for this system:"
