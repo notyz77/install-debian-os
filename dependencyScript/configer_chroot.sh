@@ -37,17 +37,27 @@ ln -sf "/usr/share/zoneinfo/$TZ" /mnt/etc/localtime
 
 # Copy keyboard-configuration files from live environment
 cp /etc/default/keyboard /mnt/etc/default/keyboard
-cp -r /etc/console-setup /mnt/etc/
+#cp -r /etc/console-setup /mnt/etc/
+cp -r /etc/console-setup /mnt/etc/console-setup
 
-chroot /mnt apt install linux-image-amd64 sudo keyboard-configuration console-setup man-db dhcpcd5 vim git -y
+# Extract layout and model from live system
+layout=$(grep XKBLAYOUT /etc/default/keyboard | cut -d'"' -f2)
+model=$(grep XKBMODEL /etc/default/keyboard | cut -d'"' -f2)
+
+# Fallbacks if empty
+layout=${layout:-us}
+model=${model:-pc105}
+
+# Preseed debconf values into chroot environment
+chroot /mnt /bin/bash -c "echo 'keyboard-configuration keyboard-configuration/layoutcode string $layout' | debconf-set-selections"
+chroot /mnt /bin/bash -c "echo 'keyboard-configuration keyboard-configuration/modelcode string $model' | debconf-set-selections"
+
+# Install without interactive prompts
+DEBIAN_FRONTEND=noninteractive chroot /mnt apt-get install -y keyboard-configuration console-setup
+
+chroot /mnt apt install linux-image-amd64 sudo man-db dhcpcd5 vim git -y
 
 clear
-
-#echo "Type the root password for the new system:"
-#chroot /mnt passwd
-
-#echo "Type the password for $usname for new system:"
-#chroot /mnt passwd $usname
 
 chroot /mnt useradd -mG sudo $usname
 
