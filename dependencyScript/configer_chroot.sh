@@ -21,10 +21,19 @@ chroot /mnt locale-gen
 chroot /mnt update-locale
 
 # Copy timezone files from live environment and Setting up timezone 
-cp /etc/timezone /mnt/etc/timezone
-cp /etc/localtime /mnt/etc/localtime
+#cp /etc/timezone /mnt/etc/timezone
+#cp /etc/localtime /mnt/etc/localtime
 
-chroot /mnt dpkg-reconfigure -f noninteractive tzdata
+#chroot /mnt dpkg-reconfigure -f noninteractive tzdata
+
+# Read timezone name
+TZ="$(cat /etc/timezone)"
+
+# Copy /etc/timezone
+echo "$TZ" | tee /mnt/etc/timezone
+
+# Set symlink in chroot
+ln -sf "/usr/share/zoneinfo/$TZ" /mnt/etc/localtime
 
 # Copy keyboard-configuration files from live environment
 cp /etc/default/keyboard /mnt/etc/default/keyboard
