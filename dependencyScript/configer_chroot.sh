@@ -52,6 +52,16 @@ model=${model:-pc105}
 chroot /mnt /bin/bash -c "echo 'keyboard-configuration keyboard-configuration/layoutcode string $layout' | debconf-set-selections"
 chroot /mnt /bin/bash -c "echo 'keyboard-configuration keyboard-configuration/modelcode string $model' | debconf-set-selections"
 
+# Copy config
+cp $dirm/dependencyScript/console-setup /mnt/etc/default/console-setup
+
+# Preseed values
+chroot /mnt /bin/bash -c "echo 'console-setup console-setup/codeset select Lat15' | debconf-set-selections"
+chroot /mnt /bin/bash -c "echo 'console-setup console-setup/charmap select UTF-8' | debconf-set-selections"
+chroot /mnt /bin/bash -c "echo 'console-setup console-setup/fontface select Fixed' | debconf-set-selections"
+chroot /mnt /bin/bash -c "echo 'console-setup console-setup/fontsizex select 8' | debconf-set-selections"
+chroot /mnt /bin/bash -c "echo 'console-setup console-setup/fontsizey select 16' | debconf-set-selections"
+
 # Install without interactive prompts
 DEBIAN_FRONTEND=noninteractive chroot /mnt apt-get install -y keyboard-configuration console-setup
 
