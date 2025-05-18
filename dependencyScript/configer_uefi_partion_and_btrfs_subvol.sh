@@ -2,7 +2,7 @@
 
 dirm="$PWD"
 diskn=1
-apt install fdisk -y
+apt install fdisk util-linux -y
 clear
 echo "This live ISO boot with UEFI mode"
 echo "Need to use GPT partition layout,by default this script first check if fdisk is install, if not it will install"
@@ -10,7 +10,7 @@ echo "Need to use GPT partition layout,by default this script first check if fdi
 # asking debian os release to installed
 echo 'Choose the following options to setting up disk for debian installer'
 echo '1) open fdisk to create partions'
-echo '2) choose this options if already setup disk for mbr with one partions and EFI partions'
+echo '2) choose this options if already setup disk for gpt with one partions and EFI partions'
 echo '3) choose this options if you only have one disk and want to used for debian installer, it will format disk automatically create partitions for it'
 
 echo 'select number:'

@@ -2,7 +2,7 @@
 
 dirm="$PWD"
 diskn=1
-apt install fdisk -y
+apt install fdisk util-linux -y
 clear
 echo "This live ISO boot with bios mode"
 echo "Need to use MBR partition layout,by default this script first check if fdisk is install, if not it will install"
@@ -111,13 +111,11 @@ elif [ $ndisk = "3" ]; then
         fi
     echo $grubDisk > $dirm/grubDisk.txt
 
-    echo 'label: dos' | sfdisk /dev/$pcdisk
-
     sfdisk /dev/$pcdisk << EOF
 label: dos
 unit: sectors
 
-/dev/$pcdisk$diskn : start=2048, size=, type=83, bootable
+/dev/$pcdisk$diskn : start=2048, size=100%, type=83, bootable
 EOF
 
     mkfs.btrfs /dev/$pcdisk$diskn
