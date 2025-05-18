@@ -9,10 +9,6 @@ grubDisk="$(cat $dirm/grubDisk.txt)"
 
 chroot /mnt apt install btrfs-progs locales -y
 
-#chroot /mnt dpkg-reconfigure locales
-
-#chroot /mnt dpkg-reconfigure tzdata
-
 # Copy locale files from live environment and Setting up locale
 cp /etc/locale.gen /mnt/etc/locale.gen
 cp /etc/default/locale /mnt/etc/default/locale
@@ -20,24 +16,17 @@ cp /etc/default/locale /mnt/etc/default/locale
 chroot /mnt locale-gen
 chroot /mnt update-locale
 
-# Copy timezone files from live environment and Setting up timezone 
-#cp /etc/timezone /mnt/etc/timezone
-#cp /etc/localtime /mnt/etc/localtime
-
-#chroot /mnt dpkg-reconfigure -f noninteractive tzdata
-
 # Read timezone name
 TZ="$(cat /etc/timezone)"
 
 # Copy /etc/timezone
 echo "$TZ" | tee /mnt/etc/timezone
 
-# Set symlink in chroot
+# Set symlink in chroot required for timezone
 ln -sf "/usr/share/zoneinfo/$TZ" /mnt/etc/localtime
 
 # Copy keyboard-configuration files from live environment
 cp /etc/default/keyboard /mnt/etc/default/keyboard
-#cp -r /etc/console-setup /mnt/etc/
 cp -r /etc/console-setup /mnt/etc/console-setup
 
 # Extract layout and model from live system
@@ -52,10 +41,10 @@ model=${model:-pc105}
 chroot /mnt /bin/bash -c "echo 'keyboard-configuration keyboard-configuration/layoutcode string $layout' | debconf-set-selections"
 chroot /mnt /bin/bash -c "echo 'keyboard-configuration keyboard-configuration/modelcode string $model' | debconf-set-selections"
 
-# Copy config
+# Copy config for console-setup
 cp $dirm/dependencyScript/console-setup /mnt/etc/default/console-setup
 
-# Preseed values
+# Preseed values for console-setup
 chroot /mnt /bin/bash -c "echo 'console-setup console-setup/codeset select Lat15' | debconf-set-selections"
 chroot /mnt /bin/bash -c "echo 'console-setup console-setup/charmap select UTF-8' | debconf-set-selections"
 chroot /mnt /bin/bash -c "echo 'console-setup console-setup/fontface select Fixed' | debconf-set-selections"
