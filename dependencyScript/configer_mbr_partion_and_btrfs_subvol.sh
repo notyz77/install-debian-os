@@ -5,13 +5,13 @@ diskn=1
 apt install fdisk -y
 clear
 echo "This live ISO boot with bios mode"
-echo "Need to use MBR patiation layout,by default this script first check if fdisk is install, if not it will install"
+echo "Need to use MBR partition layout,by default this script first check if fdisk is install, if not it will install"
 #read -n 1 -s -r -p "Press any key to continue"
 # asking debian os release to installed
 echo 'Choose the following options to setting up disk for debian installer'
 echo '1) open fdisk to create partions'
 echo '2) choose this options if already setup disk for mbr with one partions'
-echo '3) choose this options if you only have one disk and want to used for debian installer, it will formate disk automatickly create partions for it'
+echo '3) choose this options if you only have one disk and want to used for debian installer, it will format disk automatically create partitions for it'
 
 echo 'select number:'
 read ndisk
@@ -111,9 +111,9 @@ elif [ $ndisk = "3" ]; then
         fi
     echo $grubDisk > $dirm/grubDisk.txt
 
-    echo 'label: dos' | sudo sfdisk /dev/$pcdisk
+    echo 'label: dos' | sfdisk /dev/$pcdisk
 
-    sudo sfdisk /dev/$pcdisk << EOF
+    sfdisk /dev/$pcdisk << EOF
 label: dos
 unit: sectors
 

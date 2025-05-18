@@ -5,13 +5,13 @@ diskn=1
 apt install fdisk -y
 clear
 echo "This live ISO boot with UEFI mode"
-echo "Need to use GPT patiation layout,by default this script first check if fdisk is install, if not it will install"
+echo "Need to use GPT partition layout,by default this script first check if fdisk is install, if not it will install"
 #read -n 1 -s -r -p "Press any key to continue"
 # asking debian os release to installed
 echo 'Choose the following options to setting up disk for debian installer'
 echo '1) open fdisk to create partions'
 echo '2) choose this options if already setup disk for mbr with one partions and EFI partions'
-echo '3) choose this options if you only have one disk and want to used for debian installer, it will formate disk automatickly create partions for it'
+echo '3) choose this options if you only have one disk and want to used for debian installer, it will format disk automatically create partitions for it'
 
 echo 'select number:'
 read ndisk
@@ -73,14 +73,21 @@ if [ $ndisk = "1" ]; then
 elif [ $ndisk = "2" ]; then
 
     lsblk -f
-    echo '\nChoose the following disk for grub bootloader'
-    read grubDisk
-    echo $grubDisk > $dirm/grubDisk.txt
+    echo '\nChoose the following disk partions for EFI'
+    read efiPartionsDisk
+    echo $efiPartionsDisk > $dirm/efiPartionsDisk.txt
 
     lsblk -f
     echo '\nChoose the following disk partions for setting up btrfs file system with @, @home, @snapshots, @var_log subvolume'
     read partionsDisk
     echo $partionsDisk > $dirm/partionsDisk.txt
+
+    lsblk -f
+    echo '\nChoose the following disk for grub bootloader'
+    read grubDisk
+    echo $grubDisk > $dirm/grubDisk.txt
+
+    mkfs.vfat /dev/$efiPartionsDisk
 
     mkfs.btrfs /dev/$partionsDisk
 
@@ -97,9 +104,11 @@ elif [ $ndisk = "2" ]; then
     mkdir -p /mnt/home
     mkdir -p /mnt/.snapshots
     mkdir -p /mnt/var/log
+    mkdir -p /mnt/boot/efi
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@home /dev/$partionsDisk /mnt/home
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@snapshots /dev/$partionsDisk /mnt/.snapshots
     mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@var_log /dev/$partionsDisk /mnt/var/log
+    mount /dev/$efiPartionsDisk /mnt/boot/efi
 
     lsblk
 
