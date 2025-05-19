@@ -1,8 +1,9 @@
 #!/bin/sh
 
 dirm="$PWD"
-diskn=1
-apt install fdisk util-linux -y
+idskn1=1
+idskn2=2
+apt install fdisk util-linux gdisk -y
 clear
 echo "This live ISO boot with UEFI mode"
 echo "Need to use GPT partition layout,by default this script first check if fdisk is install, if not it will install"
@@ -129,18 +130,35 @@ elif [ $ndisk = "3" ]; then
         fi
     echo $grubDisk > $dirm/grubDisk.txt
 
-    echo 'label: dos' | sudo sfdisk /dev/$pcdisk
+    # Wipe existing signatures (disk + any partitions)
+    wipefs -a /dev/$pcdisk
+    for part in /dev/${pcdisk}?*; do
+        [ -b "$part" ] && wipefs -a "$part"
+    done
 
-    sudo sfdisk /dev/$pcdisk << EOF
-label: dos
-unit: sectors
+    # Zap all GPT/MBR partition tables and filesystem signatures
+    sgdisk --zap-all /dev/$pcdisk
 
-/dev/$pcdisk$diskn : start=2048, size=, type=83, bootable
-EOF
+    # Clear beginning of the disk
+    #dd if=/dev/zero of=/dev/$pcdisk bs=512 count=2048 status=none
+    #dd if=/dev/zero of=/dev/$pcdisk bs=1M seek=$(( $(blockdev --getsz /dev/$pcdisk) / 2048 - 1 )) count=1 status=none
 
-    mkfs.btrfs /dev/$pcdisk$diskn
+    # Create GPT partitions:
+    # - 1: EFI, 512M, type EF00
+    # - 2: root, rest of disk, type 8300
+    sgdisk -n 1:2048:+512M -t 1:EF00 -c 1:"EFI System Partition" /dev/$pcdisk
+    sgdisk -n 2:0:0       -t 2:8300 -c 2:"Linux Root" /dev/$pcdisk
 
-    mount /dev/$pcdisk$diskn /mnt
+    # Let kernel refresh partition table
+    partprobe /dev/$pcdisk
+    udevadm settle
+    sleep 1
+
+    mkfs.vfat /dev/$pcdisk$idskn1
+
+    mkfs.btrfs -f /dev/$pcdisk$idskn2
+
+    mount /dev/$pcdisk$idskn2 /mnt
 
     btrfs su cr /mnt/@
     btrfs su cr /mnt/@home
@@ -149,13 +167,15 @@ EOF
 
     umount /mnt
 
-    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@ /dev/$pcdisk$diskn /mnt
+    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@ /dev/$pcdisk$idskn2 /mnt
     mkdir -p /mnt/home
     mkdir -p /mnt/.snapshots
     mkdir -p /mnt/var/log
-    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@home /dev/$pcdisk$diskn /mnt/home
-    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@snapshots /dev/$pcdisk$diskn /mnt/.snapshots
-    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@var_log /dev/$pcdisk$diskn /mnt/var/log
+    mkdir -p /mnt/boot/efi
+    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@home /dev/$pcdisk$idskn2 /mnt/home
+    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@snapshots /dev/$pcdisk$idskn2 /mnt/.snapshots
+    mount -o ssd,compress=zstd:3,space_cache=v2,discard=async,noatime,subvol=@var_log /dev/$pcdisk$idskn2 /mnt/var/log
+    mount /dev/$pcdisk$idskn1 /mnt/boot/efi
 
     lsblk
 

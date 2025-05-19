@@ -2,7 +2,7 @@
 
 dirm="$PWD"
 diskn=1
-apt install fdisk util-linux -y
+apt install fdisk util-linux gdisk -y
 clear
 echo "This live ISO boot with bios mode"
 echo "Need to use MBR partition layout,by default this script first check if fdisk is install, if not it will install"
@@ -111,14 +111,26 @@ elif [ $ndisk = "3" ]; then
         fi
     echo $grubDisk > $dirm/grubDisk.txt
 
-    sfdisk /dev/$pcdisk << EOF
-label: dos
-unit: sectors
+    # Wipe existing signatures (disk + any partitions)
+    wipefs -a /dev/$pcdisk
+    for part in /dev/${pcdisk}?*; do
+        [ -b "$part" ] && wipefs -a "$part"
+    done
 
-/dev/$pcdisk$diskn : start=2048, size=100%, type=83, bootable
-EOF
+    # Zap all GPT/MBR partition tables and filesystem signatures
+    sgdisk --zap-all /dev/$pcdisk
 
-    mkfs.btrfs /dev/$pcdisk$diskn
+    # Clear beginning of the disk
+    #dd if=/dev/zero of=/dev/$pcdisk bs=512 count=2048 status=none
+
+    # Create new MBR partition table
+    echo ",,83,*" | sfdisk --label dos /dev/$pcdisk
+
+    # Reload partition table
+    partprobe /dev/$pcdisk
+    sleep 1
+
+    mkfs.btrfs -f /dev/$pcdisk$diskn
 
     mount /dev/$pcdisk$diskn /mnt
 
