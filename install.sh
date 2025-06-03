@@ -76,6 +76,10 @@ mount --rbind /proc /mnt/proc && mount --make-rslave /mnt/proc
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # configer hostname for previously set veriable
-echo $hname > /mnt//etc/hostname
+echo $hname > /mnt/etc/hostname
+
+# Add hostname in /etc/hosts file
+sed -i -e "1a127.0.1.1       $hname" /mnt/etc/hosts
+sed -i '2a\\' /mnt/etc/hosts
 
 $dirm/dependencyScript/configer_chroot.sh
