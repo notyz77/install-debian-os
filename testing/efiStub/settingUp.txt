@@ -1,0 +1,108 @@
+1. Make sure your kernel has EFI stub support
+
+Most Debian kernels (linux-image-amd64) already have EFI stub enabled. You can confirm after installing the kernel:
+
+grep EFI_STUB /boot/config-$(uname -r)
+
+
+You should see:
+
+CONFIG_EFI_STUB=y
+
+
+If yes → no need to recompile.
+
+2. Install the kernel and initramfs
+
+Inside your chroot:
+
+apt install linux-image-amd64 initramfs-tools efibootmgr
+
+
+This gives you /boot/vmlinuz-* and /boot/initrd.img-*.
+
+3. Mount EFI System Partition (ESP)
+
+On EFI systems, the ESP is usually /boot/efi:
+
+mkdir -p /boot/efi
+mount /dev/sdX1 /boot/efi   # replace with your ESP partition
+
+4. Copy kernel + initramfs into the ESP
+
+EFI firmware loads .efi executables directly.
+We’ll copy the kernel (vmlinuz) and initramfs into EFI/debian/.
+
+Example:
+
+mkdir -p /boot/efi/EFI/debian
+cp /boot/vmlinuz-*-amd64 /boot/efi/EFI/debian/vmlinuz.efi
+cp /boot/initrd.img-*-amd64 /boot/efi/EFI/debian/initrd.img
+
+
+(You can keep version suffixes if you prefer, but shorter names help with boot entries.)
+
+5. Create EFI boot entry with efibootmgr
+
+Tell firmware to boot the kernel with root=...:
+
+efibootmgr \
+  --create \
+  --disk /dev/sdX \          # disk with EFI partition
+  --part 1 \                 # partition number of ESP
+  --label "Debian EFI Stub" \
+  --loader '\EFI\debian\vmlinuz.efi' \
+  --unicode 'root=UUID=<your-root-uuid> initrd=\EFI\debian\initrd.img rw'
+
+
+👉 Get your root UUID with:
+
+blkid -s UUID -o value /dev/sdXY   # replace with root partition
+
+6. Verify boot entries
+efibootmgr -v
+
+
+You should see the new Debian entry with correct kernel + initrd.
+
+==================================================================================================
+
+efibootmgr \
+  --create \
+  --disk /dev/vda \
+  --part 1 \
+  --label "Debian EFI Stub" \
+  --loader '\EFI\debian\vmlinuz.efi' \
+  --unicode 'root=UUID=<uuid-of-vda2> ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img'
+
+========================================================================================================
+
+With custom kernel parameters
+
+If you want passthrough setup:
+
+efibootmgr --create --disk /dev/nvme0n1 --part 1 \
+  --label "Debian EFI Stub" \
+  --loader '\vmlinuz-6.9.5' \
+  --unicode 'root=/dev/nvme0n1p2 rw initrd=\initrd-6.9.5.img intel_iommu=on iommu=pt video=efifb:off'
+
+4. Managing entries
+
+List current UEFI entries:
+
+efibootmgr
+
+
+Delete an entry (e.g. Boot0007):
+
+efibootmgr -b 0007 -B
+
+
+Change boot order (e.g. Boot0003 first):
+
+efibootmgr -o 0003,0001
+
+
+⚠️ Gotcha: Every time you update your kernel/initrd, you need to copy them into the ESP (since UEFI can’t read from ext4/btrfs directly), or automate this with a hook script (like /etc/kernel/postinst.d/zz-update-efi).
+
+========================================================================================================================

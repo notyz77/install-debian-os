@@ -1,0 +1,26 @@
+#!/bin/sh
+# /etc/kernel/postinst.d/zz-update-efi
+# Automatically copy kernel + initrd into EFI system partition for EFI stub boot
+
+set -e
+
+version="$1"
+image="/boot/vmlinuz-$version"
+initrd="/boot/initrd.img-$version"
+
+ESP_DIR="/boot/efi/EFI/debian"
+
+# Make sure ESP is mounted
+if ! mountpoint -q /boot/efi; then
+    echo "ESP not mounted at /boot/efi, skipping EFI update"
+    exit 0
+fi
+
+mkdir -p "$ESP_DIR"
+
+echo "Updating EFI stub kernel for version $version ..."
+
+cp -f "$image" "$ESP_DIR/vmlinuz.efi"
+cp -f "$initrd" "$ESP_DIR/initrd.img"
+
+echo "EFI stub update complete."
