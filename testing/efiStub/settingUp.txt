@@ -86,6 +86,18 @@ efibootmgr --create --disk /dev/nvme0n1 --part 1 \
   --loader '\vmlinuz-6.9.5' \
   --unicode 'root=/dev/nvme0n1p2 rw initrd=\initrd-6.9.5.img intel_iommu=on iommu=pt video=efifb:off'
 
+working entry on vm
+
+efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img'
+
+the above entry with kvm custom kernel parameters
+
+efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ intel_iommu=on iommu=pt video=efifb:off initrd=\EFI\debian\initrd.img'
+
+the above entry with ubuntu still logo custom kernel parameters
+
+efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ video=efifb:off quiet splash initrd=\EFI\debian\initrd.img'
+
 4. Managing entries
 
 List current UEFI entries:
