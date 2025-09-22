@@ -1,0 +1,37 @@
+#!/bin/sh
+# /etc/kernel/postinst.d/zz-update-efi-with-fallback-kernel
+# Automatically copy kernel + initrd into EFI system partition for EFI stub boot
+
+set -e
+
+version="$1"
+image="/boot/vmlinuz-$version"
+initrd="/boot/initrd.img-$version"
+
+ESP_DIR="/boot/efi/EFI/debian"
+
+# Make sure ESP is mounted
+if ! mountpoint -q /boot/efi; then
+    echo "ESP not mounted at /boot/efi, skipping EFI update"
+    exit 0
+fi
+
+mkdir -p "$ESP_DIR"
+
+echo "Updating EFI stub kernel for version $version ..."
+
+# If current EFI kernel exists, move it to Old before overwriting
+if [ -f "$ESP_DIR/vmlinuz.efi" ]; then
+    echo "Backing up previous kernel as vmlinuzOld.efi"
+    mv -f "$ESP_DIR/vmlinuz.efi" "$ESP_DIR/vmlinuzOld.efi"
+fi
+if [ -f "$ESP_DIR/initrd.img" ]; then
+    echo "Backing up previous initrd as initrdOld.img"
+    mv -f "$ESP_DIR/initrd.img" "$ESP_DIR/initrdOld.img"
+fi
+
+# Copy new kernel + initrd
+cp -f "$image" "$ESP_DIR/vmlinuz.efi"
+cp -f "$initrd" "$ESP_DIR/initrd.img"
+
+echo "EFI stub update complete."

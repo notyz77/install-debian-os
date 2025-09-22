@@ -77,28 +77,43 @@ efibootmgr \
 
 ========================================================================================================
 
-With custom kernel parameters
-
-If you want passthrough setup:
-
-efibootmgr --create --disk /dev/nvme0n1 --part 1 \
-  --label "Debian EFI Stub" \
-  --loader '\vmlinuz-6.9.5' \
-  --unicode 'root=/dev/nvme0n1p2 rw initrd=\initrd-6.9.5.img intel_iommu=on iommu=pt video=efifb:off'
+Example of working command.
 
 working entry on vm
 
 efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img'
 
-the above entry with kvm custom kernel parameters
-
-efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ intel_iommu=on iommu=pt video=efifb:off initrd=\EFI\debian\initrd.img'
-
 the above entry with ubuntu still logo custom kernel parameters
 
 efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ video=efifb:off quiet splash initrd=\EFI\debian\initrd.img'
 
-4. Managing entries
+the above entry with kvm custom kernel parameters
+
+efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ intel_iommu=on iommu=pt video=efifb:off initrd=\EFI\debian\initrd.img'
+
+this is fallback kernel entry with kvm custom kernel parameters to boot into previous kernal
+
+efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode 'root=UUID=cb6a569c-04c8-4096-92e3-1a1eae0de169 ro rootflags=subvol=@ intel_iommu=on iommu=pt video=efifb:off initrd=\EFI\debian\initrdOld.img'
+
+=========================================================================================================
+
+How to setup UEFI shell for troubleshoot
+
+Download the latest version of shellx64.efi from link
+
+https://github.com/pbatard/UEFI-Shell/releases
+
+then make directory in EFI folder name tools
+
+copy the file and paste into directory '/EFI/tools/'
+
+then create boot entry with efibootmgr
+
+efibootmgr -c -d /dev/nvme1n1 -p 1 -L "UEFI Shell" -l '\EFI\tools\shellx64.efi'
+
+===========================================================================================================
+
+Managing entries
 
 List current UEFI entries:
 
@@ -114,7 +129,27 @@ Change boot order (e.g. Boot0003 first):
 
 efibootmgr -o 0003,0001
 
+==============================================================================================================
 
-⚠️ Gotcha: Every time you update your kernel/initrd, you need to copy them into the ESP (since UEFI can’t read from ext4/btrfs directly), or automate this with a hook script (like /etc/kernel/postinst.d/zz-update-efi).
+Make UEFI-shell full screen
+
+Shell> mode
+
+This shows available text modes
+
+col 80  row 25
+col 80  row 50
+col 100  row 31
+col 240  row 56
+
+so to set highest resolutions, like col 240  row 56, type
+
+Shell> mode 240 56
+
+=================================================================================================================
+
+To get the device and drive in UEFI-shell type
+
+map -r
 
 ========================================================================================================================
