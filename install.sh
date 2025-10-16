@@ -43,7 +43,7 @@ echo '3) forky (current testing)'
 echo '4) testing' 
 echo '5) sid'
 
-echo 'type the name (default it will choose 'bookworm'):'
+echo 'type the name (default it will choose 'trixie'):'
 read nrelease
 
 # If the input is empty, use the default value "John"
