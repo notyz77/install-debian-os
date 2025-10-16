@@ -37,17 +37,18 @@ source /etc/default/locale
 
 # asking debian os release to installed
 echo 'Choose the following debian os release you want to install'
-echo '1) bookworm (curent stable)'
-echo '2) trixie (current testing)'
-echo '3) testing' 
-echo '4) sid'
+echo '1) bookworm'
+echo '2) trixie (current stable)'
+echo '3) forky (current testing)'
+echo '4) testing' 
+echo '5) sid'
 
 echo 'type the name (default it will choose 'bookworm'):'
 read nrelease
 
 # If the input is empty, use the default value "John"
 if [ -z "$nrelease" ]; then
-    nrelease="bookworm"
+    nrelease="trixie"
 fi
 echo $nrelease > $dirm/nrelease.txt
 
