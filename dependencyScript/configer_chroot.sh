@@ -65,7 +65,14 @@ chroot /mnt usermod -s /bin/bash $usname
 echo "root:$rootPass" | chroot /mnt chpasswd
 echo "$usname:$usPass" | chroot /mnt chpasswd
 
-if [ -d /sys/firmware/efi ]; then
+if [ -d /sys/firmware/efi ] && [ -f "$dirm/efistub" ]; then
+    
+    chroot /mnt apt install initramfs-tools efibootmgr
+    cp ../testing/efiStub/zz-update-efi-with-fallback-kernel /mnt/etc/kernel/postinst.d/
+    chmod +x /mnt/etc/kernel/postinst.d/zz-update-efi-with-fallback-kernel
+    echo efiStub setup is completed
+
+elif [ -d /sys/firmware/efi ]; then
     
     chroot /mnt apt install grub-efi-amd64 -y
     chroot /mnt grub-install /dev/$grubDisk

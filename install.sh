@@ -1,11 +1,42 @@
 #!/bin/sh
 
+set -e
+
 if [ $(id -u) -ne 0 ]; then
         echo "Only root can do this"
         exit 1
 fi
 
 dirm="$PWD"
+
+# ---- If no arguments, stop here ----
+if [ "$#" -eq 0 ]; then
+    echo "No extra options provided"
+    exit 0
+fi
+
+# ---- Handle optional arguments ----
+echo "Extra options detected:"
+for opt in "$@"; do
+    case "$opt" in
+        efistub)
+            echo "Use efiStub boot"
+            touch $dirm/efistub
+            ;;
+        noefi)
+            echo "UEFI install with No EFI Partions as use other bootloader"
+            touch $dirm/noefi
+            ;;
+        doas)
+            echo "replace sudo with doas"
+            touch $dirm/doas
+            ;;
+        *)
+            echo "Unknown option: $opt"
+            exit 1
+            ;;
+    esac
+done
 
 # asking username
 echo "Type the username for the new system:"
