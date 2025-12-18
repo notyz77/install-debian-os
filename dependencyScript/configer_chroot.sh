@@ -75,14 +75,17 @@ if [ -d /sys/firmware/efi ] && [ -f "$dirm/efistub" ]; then
     cp /mnt/boot/vmlinuz-*-amd64 /mnt/boot/efi/EFI/debian/vmlinuz.efi
     cp /mnt/boot/initrd.img-*-amd64 /mnt/boot/efi/EFI/debian/initrd.img
 
-    chroot export UUDisk=$(mount | awk '/\/ type btrfs/ {print $1}')
-    echo $UUDisk > $dirm/UUDisk.txt
-    chroot export UUID=$(blkid -s UUID -o value $UUDisk)
-    echo $UUID > $dirm/UUID.txt
+    chroot /mnt /bin/bash -c '
+    UUDisk=$(mount | awk "/\/ type btrfs/ {print \$1}")
+    echo "$UUDisk"
 
-    chroot efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode 'root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrdOld.img'
+    UUID=$(blkid -s UUID -o value $UUDisk)
+    echo "$UUID"
+    
+    efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode 'root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrdOld.img'
 
-    chroot efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img'
+    efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img'
+    '
 
     echo efiStub setup is completed
 
