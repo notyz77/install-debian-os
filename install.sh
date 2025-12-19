@@ -64,7 +64,7 @@ dpkg-reconfigure tzdata
 
 # Setting up locale
 dpkg-reconfigure locales
-source /etc/default/locale
+. /etc/default/locale
 
 # asking debian os release to installed
 echo 'Choose the following debian os release you want to install'
