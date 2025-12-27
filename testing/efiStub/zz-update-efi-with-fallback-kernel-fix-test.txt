@@ -1,0 +1,66 @@
+✅ Kernel hook (with fallback)
+
+File:
+/etc/kernel/postinst.d/zz-update-efistub
+
+#!/bin/sh
+set -e
+
+version="$1"
+image="/boot/vmlinuz-$version"
+ESP_DIR="/boot/efi/EFI/debian"
+
+# ESP must be mounted
+mountpoint -q /boot/efi || exit 0
+mkdir -p "$ESP_DIR"
+
+echo "EFI: updating kernel $version"
+
+# Backup existing kernel
+if [ -f "$ESP_DIR/vmlinuz.efi" ]; then
+    cp -a "$ESP_DIR/vmlinuz.efi" "$ESP_DIR/vmlinuzOld.efi"
+fi
+
+# Copy new kernel
+cp -a "$image" "$ESP_DIR/vmlinuz.efi"
+
+What this guarantees
+
+Kernel always exists when copied
+
+Old kernel always preserved
+
+No interaction with initramfs lifecycle
+
+✅ Initramfs hook (with fallback)
+
+File:
+/etc/initramfs/post-update.d/zz-update-efistub
+
+#!/bin/sh
+set -e
+
+initrd="$2"
+ESP_DIR="/boot/efi/EFI/debian"
+
+# ESP must be mounted
+mountpoint -q /boot/efi || exit 0
+mkdir -p "$ESP_DIR"
+
+echo "EFI: updating initramfs"
+
+# Backup existing initrd
+if [ -f "$ESP_DIR/initrd.img" ]; then
+    cp -a "$ESP_DIR/initrd.img" "$ESP_DIR/initrdOld.img"
+fi
+
+# Copy new initrd
+cp -a "$initrd" "$ESP_DIR/initrd.img"
+
+What this guarantees
+
+Initramfs is fully generated
+
+Old initrd always preserved
+
+Works even if update-initramfs -u is run manually

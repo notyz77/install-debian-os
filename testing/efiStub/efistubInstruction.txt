@@ -1,0 +1,37 @@
+********************************************************************************************************************************************************************************************
+
+The efistub entry needs to be set up manually in the chroot environment. We recommend setting up 2 boot entry, first entry for corrent/new kernal and second for fallback kernel to boot into previous kernal.
+
+Step 1:- Delete previously setup boot entry from system before creating new entry, use below command to manage UEFI entrys
+
+List current UEFI entries:
+
+# efibootmgr
+
+Delete an entry (e.g. Boot0007):
+
+# efibootmgr -b 0007 -B
+
+Change boot order (e.g. Boot0003 first):
+
+# efibootmgr -o 0003,0001
+
+Step 2:- Find out UUID with below command in chroot enviroment and use lsblk -f to find disk name for efi path
+
+# UUDisk=$(mount | awk "/\/ type btrfs/ {print \$1}") && blkid -s UUID -o value $UUDisk
+
+Step 3:- First create fallback kernel boot entry so when creating corrent/new kernal boot entry it automaticly set as first boot.
+
+example command 1:- This is boot entry for fallback kernel and corrent kernal without any kernel parameters; it will just boot into the system and replace /dev/vda and UUID with yours.
+
+# efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode 'root=UUID=zb6a469c-0448-4096-92e3-1a1e550de169 ro rootflags=subvol=@ initrd=\EFI\debian\initrdOld.img'
+
+# efibootmgr --create --disk /dev/vda --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=zb6a469c-0448-4096-92e3-1a1e550de169 ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img'
+
+example command 2:- This is boot entry for fallback kernel and corrent kernal with kvm custom kernel parameters, this is i use in my system, replace /dev/vda and UUID with yours.
+
+# efibootmgr --create --disk /dev/nvme1n1 --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode 'root=UUID=zb6a469c-0448-4096-92e3-1a1e550de169 ro rootflags=subvol=@ intel_iommu=on iommu=pt video=efifb:off initrd=\EFI\debian\initrdOld.img'
+
+# efibootmgr --create --disk /dev/nvme1n1 --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode 'root=UUID=zb6a469c-0448-4096-92e3-1a1e550de169 ro rootflags=subvol=@ intel_iommu=on iommu=pt video=efifb:off initrd=\EFI\debian\initrd.img'
+
+************************************************************************************************************************************************************************************************

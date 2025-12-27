@@ -65,6 +65,8 @@ chroot /mnt usermod -s /bin/bash $usname
 echo "root:$rootPass" | chroot /mnt chpasswd
 echo "$usname:$usPass" | chroot /mnt chpasswd
 
+chroot /mnt systemctl enable dhcpcd
+
 if [ -d /sys/firmware/efi ] && [ -f "$dirm/efistub" ]; then
     
     chroot /mnt apt install initramfs-tools efibootmgr -y
@@ -75,25 +77,27 @@ if [ -d /sys/firmware/efi ] && [ -f "$dirm/efistub" ]; then
     cp /mnt/boot/vmlinuz-*-amd64 /mnt/boot/efi/EFI/debian/vmlinuz.efi
     cp /mnt/boot/initrd.img-*-amd64 /mnt/boot/efi/EFI/debian/initrd.img
 
-    echo $grubDisk > /mnt/tmp/grubDisk.txt
+    # echo $grubDisk > /mnt/tmp/grubDisk.txt
 
-    chroot /mnt /bin/bash -c '
-    grubDisk="$(cat /tmp/grubDisk.txt)"
-    echo "$grubDisk"
-    UUDisk=$(mount | awk "/\/ type btrfs/ {print \$1}")
-    echo "$UUDisk"
+    # chroot /mnt /bin/bash -c '
+    # grubDisk="$(cat /tmp/grubDisk.txt)"
+    # echo "$grubDisk"
+    # UUDisk=$(mount | awk "/\/ type btrfs/ {print \$1}")
+    # echo "$UUDisk"
 
-    UUID=$(blkid -s UUID -o value $UUDisk)
-    echo "$UUID"
+    # UUID=$(blkid -s UUID -o value $UUDisk)
+    # echo "$UUID"
     
-    efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode "root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrdOld.img"
+    # efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub Old" --loader '\EFI\debian\vmlinuzOld.efi' --unicode "root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrdOld.img"
 
-    sleep 2
+    # sleep 2
 
-    efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode "root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img"
-    '
+    # efibootmgr --create --disk /dev/$grubDisk --part 1 --label "Debian EFI Stub" --loader '\EFI\debian\vmlinuz.efi' --unicode "root=UUID=$UUID ro rootflags=subvol=@ initrd=\EFI\debian\initrd.img"
+    # '
 
-    echo efiStub setup is completed
+    clear
+
+    cat $dirm/testing/efiStub/efistubInstruction.txt
 
 elif [ -d /sys/firmware/efi ]; then
     
@@ -110,5 +114,3 @@ else
     chroot /mnt update-grub2
 
 fi
-
-chroot /mnt systemctl enable dhcpcd
