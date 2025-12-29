@@ -81,7 +81,9 @@ echo $nrelease > $dirm/nrelease.txt
 
 #uefi="$(cat /sys/firmware/efi/fw_platform_size 2> /dev/null)"
 
-if [ -d /sys/firmware/efi ]; then
+if [ -d /sys/firmware/efi ] && [ -f "$dirm/noefi" ]; then
+    $dirm/dependencyScript/configer_uefi_partion_with_no_efi_partion.sh
+elif [ -d /sys/firmware/efi ]; then
     $dirm/dependencyScript/configer_uefi_partion_and_btrfs_subvol.sh
 else
     $dirm/dependencyScript/configer_mbr_partion_and_btrfs_subvol.sh

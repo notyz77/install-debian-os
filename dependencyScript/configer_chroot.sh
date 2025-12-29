@@ -99,6 +99,10 @@ if [ -d /sys/firmware/efi ] && [ -f "$dirm/efistub" ]; then
 
     cat $dirm/testing/efiStub/efistubInstruction.txt
 
+elif [ -d /sys/firmware/efi ] && [ -f "$dirm/noefi" ]; then
+
+    echo 'Debian is installed & now need to configer efi & bootloader manually'
+
 elif [ -d /sys/firmware/efi ]; then
     
     chroot /mnt apt install grub-efi-amd64 -y
