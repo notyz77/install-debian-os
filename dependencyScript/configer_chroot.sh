@@ -58,12 +58,33 @@ chroot /mnt apt install linux-image-amd64 sudo man-db dhcpcd5 vim git -y
 
 clear
 
-chroot /mnt useradd -mG sudo $usname
+chroot /mnt useradd -m $usname
 
 chroot /mnt usermod -s /bin/bash $usname
 
 echo "root:$rootPass" | chroot /mnt chpasswd
 echo "$usname:$usPass" | chroot /mnt chpasswd
+
+if [ -f "$dirm/doas" ]; then
+    
+    chroot /mnt apt install opendoas -y
+    chroot /mnt useradd -aG sudo $usname
+    cat > /mnt/etc/doas.conf << EOF
+permit persist setenv {PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin} :sudo
+EOF
+    chown -c root:root /mnt/etc/doas.conf
+    chmod -c 0400 /mnt/etc/doas.conf
+    echo -e "\n# doas" >> /mnt/home/$usname/.bashrc
+    echo 'export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:$PATH"' >> /mnt/home/$usname/.bashrc
+    echo 'complete -F _command doas' >> /mnt/home/$usname/.bashrc
+    chown -c $usname:$usname /mnt/home/$usname/.bashrc
+
+else
+    
+    chroot /mnt apt install sudo -y
+    chroot /mnt useradd -aG sudo $usname
+
+fi
 
 chroot /mnt systemctl enable dhcpcd
 
