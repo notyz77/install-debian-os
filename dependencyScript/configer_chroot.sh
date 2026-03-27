@@ -68,7 +68,7 @@ echo "$usname:$usPass" | chroot /mnt chpasswd
 if [ -f "$dirm/doas" ]; then
     
     chroot /mnt apt install opendoas -y
-    chroot /mnt useradd -aG sudo $usname
+    chroot /mnt usermod -aG sudo $usname
     cat > /mnt/etc/doas.conf << EOF
 permit persist setenv {PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin} :sudo
 EOF
@@ -82,7 +82,7 @@ EOF
 else
     
     chroot /mnt apt install sudo -y
-    chroot /mnt useradd -aG sudo $usname
+    chroot /mnt usermod -aG sudo $usname
 
 fi
 
