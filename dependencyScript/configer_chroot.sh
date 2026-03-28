@@ -54,7 +54,7 @@ chroot /mnt /bin/bash -c "echo 'console-setup console-setup/fontsizey select 16'
 # Install without interactive prompts
 DEBIAN_FRONTEND=noninteractive chroot /mnt apt-get install -y keyboard-configuration console-setup
 
-chroot /mnt apt install linux-image-amd64 sudo man-db dhcpcd5 vim git -y
+chroot /mnt apt install linux-image-amd64 man-db dhcpcd5 vim git -y
 
 clear
 
@@ -74,10 +74,11 @@ permit persist setenv {PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin} :
 EOF
     chown -c root:root /mnt/etc/doas.conf
     chmod -c 0400 /mnt/etc/doas.conf
-    echo -e "\n# doas" >> /mnt/home/$usname/.bashrc
+#    echo -e "\n# doas" >> /mnt/home/$usname/.bashrc
+    printf "\n# doas\n" >> /mnt/home/$usname/.bashrc
     echo 'export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:$PATH"' >> /mnt/home/$usname/.bashrc
     echo 'complete -F _command doas' >> /mnt/home/$usname/.bashrc
-    chown -c $usname:$usname /mnt/home/$usname/.bashrc
+    chroot /mnt chown -c $usname:$usname /mnt/home/$usname/.bashrc
 
 else
     
