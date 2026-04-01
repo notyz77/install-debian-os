@@ -26,6 +26,10 @@ if [ "$#" -gt 0 ]; then
                 echo "replace sudo with doas"
                 touch "$dirm/doas"
                 ;;
+            dwm)
+                echo "replace sudo with doas"
+                touch "$dirm/dwm"
+                ;;
             *)
                 echo "Unknown option: $opt"
                 exit 1
@@ -51,6 +55,21 @@ echo $rootPass > $dirm/rootPass.txt
 echo "Type the hostname for this system:"
 read hname
 echo $hname > $dirm/hname.txt
+
+# asking for network names if dwm options used
+if [ -f "$dirm/dwm" ]; then
+    
+    ls -lah /sys/class/net/
+    echo "Type your cable name it start with 'en' something something:"
+    read cable
+    echo $cable > $dirm/cable.txt
+
+    ls -lah /sys/class/net/
+    echo "Type your wifi name it start with 'wl' something something (if don't have wifi type 'nowifi'):"
+    read wifi
+    echo $wifi > $dirm/wifi.txt
+
+fi
 
 # setting up keyboard-configuration
 dpkg-reconfigure keyboard-configuration
@@ -113,3 +132,9 @@ sed -i -e "1a127.0.1.1       $hname" /mnt/etc/hosts
 sed -i '2a\\' /mnt/etc/hosts
 
 $dirm/dependencyScript/configer_chroot.sh
+
+if [ -f "$dirm/dwm" ]; then
+    
+    $dirm/dependencyScript/configer_dwm.sh
+
+fi
