@@ -27,7 +27,7 @@ if [ "$#" -gt 0 ]; then
                 touch "$dirm/doas"
                 ;;
             dwm)
-                echo "replace sudo with doas"
+                echo "This will install dwm window manager with associated programs for desktop experience"
                 touch "$dirm/dwm"
                 ;;
             *)
